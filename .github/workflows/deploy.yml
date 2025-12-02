@@ -21,46 +21,46 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 代码
-        uses: actions/checkout@v4  # 升级到 v4（最新稳定版）
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # 启用则支持 VitePress 的 lastUpdated 功能（建议保留）
+          fetch-depth: 0 # 支持 VitePress 的 lastUpdated 功能（建议保留）
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2 # 稳定版，无需升级（支持指定 pnpm 版本）
+        uses: pnpm/action-setup@v2
         with:
           version: 9.12.1 # 固定 pnpm 版本，确保构建一致性
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4 # 升级到 v4（替代老旧 v3）
+        uses: actions/setup-node@v4
         with:
-          node-version: 20 # 兼容 VitePress 的 Node 版本要求（18+）
-          cache: pnpm # 缓存 pnpm 依赖，加速构建
+          node-version: 20
+          cache: pnpm
 
       - name: Setup GitHub Pages 配置
-        uses: actions/configure-pages@v5 # 升级到 v5（Pages 官方最新推荐）
+        uses: actions/configure-pages@v5
 
       - name: 安装依赖
-        run: pnpm install # 基于 pnpm-lock.json 安装，确保依赖一致性
+        run: pnpm install
 
       - name: 构建 VitePress 站点
         run: |
-          pnpm run docs:build # 执行构建命令（确保 package.json 中已配置该脚本）
-          touch docs/.vitepress/dist/.nojekyll # 修复路径：在产物目录创建 .nojekyll
+          pnpm run docs:build
+          touch docs/.vitepress/dist/.nojekyll # 产物目录下创建，确保生效
 
       - name: 上传构建产物
-        uses: actions/upload-pages-artifact@v2 # Pages 专用上传 Action（v2 稳定，无需改）
+        uses: actions/upload-pages-artifact@v3 # 升级到 v3，解决依赖废弃问题
         with:
-          path: docs/.vitepress/dist # 产物路径正确（与 VitePress 构建输出一致）
+          path: docs/.vitepress/dist # 产物路径保持不变
 
-  # 部署工作（依赖 build  job 完成）
+  # 部署工作
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }} # 输出部署后的访问地址
+      url: ${{ steps.deployment.outputs.page_url }}
     needs: build
     runs-on: ubuntu-latest
     name: Deploy to GitHub Pages
     steps:
       - name: 部署到 GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2 # Pages 专用部署 Action（v2 稳定，无需改）
+        uses: actions/deploy-pages@v4 # 与 upload-pages-artifact@v3 配套升级

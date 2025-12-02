@@ -3,54 +3,39 @@ module.exports =  [
   { text: '首页', link: '/' },
   { text: '公司简介', link: '/pages/f93792/' },
 
+    /*
 {
   text: '产品分类',
   items: [
     {
-      text: '图文鉴赏',
+    //  text: '非机动车列表',
+  
       items: [
-        { text: '电视柜', link: '/pages/78kh78/' },
-        { text: '玄关柜', link: '/pages/1b128k/' },
-        { text: '餐边柜', link: '/pages/1b12lp/'},
-        { text: '走廊柜', link: '/pages/785pop/'},
-        { text: '衣帽柜', link: '/pages/1b87em/'},
-        { text: '阳台柜', link: '/pages/520kkm/'},
-        { text: '飘窗柜', link: '/pages/889qwe/'},
-        { text: '收纳柜', link: '/pages/74kj5g/'},
-        { text: '床头柜', link: '/pages/556qwe/'},
-        { text: '酒柜', link: '/pages/2k12ed/'},
-        { text: '鞋柜', link: '/pages/854hgt/'},
+        { text: '电动自行车', link: '/pages/78kh78/' },
+        { text: '电动摩托车', link: '/pages/1b128k/' },
+        { text: '电动三轮车', link: '/pages/1b12lp/'},
+        { text: '电动滑板车', link: '/pages/1b12rp/' },
+        { text: '电动代步车', link: '/pages/1b12ed/' },
+        { text: '电动平衡车', link: '/pages/1b12cd/' },
+        { text: '电动观光车', link: '/pages/1b12md/' },
+        { text: '电动老年代步车', link: '/pages/1b12nd/' },
+        { text: '电动货运车', link: '/pages/1b12od/' }
+       
       ]
-    },
-    {
-      text: '我的文档',
-      items: [
-        { text: '测试', link: '/private/wedding/' },
-        { text: '关于', link: 'https://docs.dakecn.top/' },
-      ]
+       
     },
   ]
 },
 
+ */
 
-
- { text: '资讯中心', 
+ { text: '新闻中心', 
   items:[
-    { text: '旅游团建', link: '/pages/9cc27d/' },
-    { text: '工作会议', link: '/pages/6343a7/' },
-    { text: '考察交流', link: '/pages/1d82c3/' },
-    { text: '产品质量', link: '/pages/1d82c3/' },
-    { text: '苔花家居', link: '/pages/3dda65/' },
-    { text: '校园招聘', link: '/pages/2dda55/' },
+    { text: '内部新闻', link: '/pages/9cc27d/' },
+    { text: '外部新闻', link: '/pages/9cc27d/' },
+   
 
-    {
-      text: '我的科普',
-      items: [
-        
-        { text: '混知', link: '/pages/hunzhi/' },
-       
-      ]
-    }
+   
   
 
   ]
@@ -74,10 +59,10 @@ module.exports =  [
 */
 
  //{ text: '产品中心', link: '/pages/1b12ed/' },
- { text: '招商加盟', link: '/pages/db78e2/' },
- { text: '联系我们', link: '/pages/5d571c/' },
- { text: '导航站', link: '/pages/daohang/' },
- { text: '留言区', link: '/message-area/' }
+// { text: '招商加盟', link: '/pages/db78e2/' },
+// { text: '联系我们', link: '/pages/5d571c/' },
+// { text: '导航站', link: '/pages/daohang/' },
+// { text: '留言区', link: '/message-area/' }
 
 
 

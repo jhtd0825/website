@@ -4,31 +4,28 @@ on:
   push:
     branches: [main]
 
-# 设置token访问权限（Pages部署必需）
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# 并发控制：避免重复部署
 concurrency:
   group: pages
   cancel-in-progress: false
 
 jobs:
-  # 构建工作
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 代码
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # 支持 VitePress 的 lastUpdated 功能（建议保留）
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 9.12.1 # 固定 pnpm 版本，确保构建一致性
+          version: 9.12.1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -39,20 +36,19 @@ jobs:
       - name: Setup GitHub Pages 配置
         uses: actions/configure-pages@v5
 
-      - name: 安装依赖
-        run: pnpm install
+      - name: 安装依赖（允许生成锁文件）
+        run: pnpm install --no-lockfile=false  # 关键优化：兜底锁文件缺失场景
 
       - name: 构建 VitePress 站点
         run: |
           pnpm run docs:build
-          touch docs/.vitepress/dist/.nojekyll # 产物目录下创建，确保生效
+          touch docs/.vitepress/dist/.nojekyll
 
       - name: 上传构建产物
-        uses: actions/upload-pages-artifact@v3 # 升级到 v3，解决依赖废弃问题
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/.vitepress/dist # 产物路径保持不变
+          path: docs/.vitepress/dist
 
-  # 部署工作
   deploy:
     environment:
       name: github-pages
@@ -63,4 +59,4 @@ jobs:
     steps:
       - name: 部署到 GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4 # 与 upload-pages-artifact@v3 配套升级
+        uses: actions/deploy-pages@v4

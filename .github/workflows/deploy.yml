@@ -42,12 +42,12 @@ jobs:
       - name: 构建 VitePress 站点
         run: |
           pnpm run docs:build
-          touch docs/.vitepress/dist/.nojekyll
+          touch docs/.vuepress/dist/.nojekyll
 
       - name: 上传构建产物
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/.vitepress/dist
+          path: docs/.vuepress/dist
 
   deploy:
     environment:

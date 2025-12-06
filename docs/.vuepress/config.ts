@@ -115,7 +115,7 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
     footer: {
       createYear: 2019, // 博客创建年份
       copyrightInfo:
-        'Evan Xu | <a href="https://github.com/xugaoyi/vuepress-theme-vdoing/blob/master/LICENSE" target="_blank">MIT License</a> | <a href="http://beian.miit.gov.cn/" target="_blank">桂ICP备2024034950号</a> | <img src="/img/beian.png" style="width: 15px; margin-bottom: -3px;" /> <a href="https://beian.mps.gov.cn/#/query/webSearch?code=45142202000030" rel="noreferrer" target="_blank">桂公网安备45142202000030</a>', // 博客版权信息、备案信息等，支持a标签或换行标签</br>
+        'jinyi | <a href="https://docs.dakecn.top/" target="_blank">学习文档</a> | <a href="http://beian.miit.gov.cn/" target="_blank">苏ICP备19058848号</a> | <img src="/img/beian.png" style="width: 15px; margin-bottom: -3px;" /> <a href="https://beian.mps.gov.cn/#/query/webSearch?code=45142202000030" rel="noreferrer" target="_blank">苏ICP备19058848号-1</a>', // 博客版权信息、备案信息等，支持a标签或换行标签</br>
     },
 
 // 首页大图片配置
@@ -152,7 +152,7 @@ privatePage: {
   openPrivate: true, // 开启私密文章验证，默认开启（true），如果不开启（false），则下面配置都失效
   username: "jinyi", // 管理员用户名
   password: "123456", // 管理员密码
-  expire: "1d", // 登录过期时间：1d 代表 1 天，1h 代表 1 小时，仅支持这两个单位，不加单位代表秒。过期后访问私密文章重新输入用户名和密码。默认一天
+  expire: "60", // 登录过期时间：1d 代表 1 天，1h 代表 1 小时，仅支持这两个单位，不加单位代表秒。过期后访问私密文章重新输入用户名和密码。默认一天
   loginPath: "/vdoing/login/", // 引用登录组件的 md 文章的 permalink（必须），无默认值
   loginKey: "vdoing_manager", // 存储用户名信息的 key，默认是 vdoing_manager。系统通过该 key 验证是否登录、是否过期
   loginSession: false, // 开启是否在网页关闭或刷新后，清除登录状态，这样再次访问网页，需要重新登录，默认为 false（不开启）
@@ -179,8 +179,8 @@ privatePage: {
     // 扩展自动生成frontmatter。（当md文件的frontmatter不存在相应的字段时将自动添加。不会覆盖已有的数据。）
     extendFrontmatter: {
       author: {
-        name: 'xugaoyi',
-        link: 'https://github.com/xugaoyi'
+        name: 'jinyi',
+        link: 'https://www.jinyigroup.com.cn/#/'
       }
     },
 

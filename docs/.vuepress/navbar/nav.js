@@ -1,8 +1,9 @@
 // Java导航栏
 module.exports =  [
   { text: '首页', link: '/' },
-  { text: '马上有车登录后台', link: 'https://msyc.jhtd361.cn/?s=/login/index' },
   { text: '金翌官网', link: 'https://www.jinyigroup.com.cn/#/' },
+  { text: '马上有车登录管理', link: 'https://msyc.jhtd361.cn/?s=/login/index' },
+
 
     /*
 {

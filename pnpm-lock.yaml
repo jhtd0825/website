@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      '@moefy-canvas/theme-popper':
+        specifier: ^0.6.0
+        version: 0.6.0
     devDependencies:
       dayjs:
         specifier: ^1.9.7
@@ -41,6 +45,9 @@ importers:
       vuepress-plugin-one-click-copy:
         specifier: ^1.0.2
         version: 1.0.6
+      vuepress-plugin-reading-progress:
+        specifier: ^1.0.10
+        version: 1.0.10
       vuepress-plugin-sitemap:
         specifier: ^2.3.1
         version: 2.3.1(chalk@4.1.2)(commander@2.20.3)(esm@3.2.25)
@@ -644,6 +651,15 @@ packages:
 
   '@leancloud/platform-adapters-weapp@1.6.3':
     resolution: {integrity: sha512-adUCskxrCZ6aT8q9/s+JWXla1QIVKLAg571OP7VQeDvRqSYAUeqxLquQAmO0oiUQKsPDB5dDtYJHYvicJQK3IQ==}
+
+  '@moefy-canvas/core@0.6.0':
+    resolution: {integrity: sha512-i3GUeqfiEVs6Uuk32x/LYw8W0g8E9jc7y28hjZj/H1/PASYhN++lFmvJc0MhbWqjNmaUBfaWkUFIYw3RqnGcjQ==}
+
+  '@moefy-canvas/theme-popper@0.6.0':
+    resolution: {integrity: sha512-S3tZBchmkV4tqkbvwZzNoFtVMHVT+X8yXPY7hsPf4iN2cOIQZMdbUEI8ZJz6GDakLdkiHMM4USIKeWkFQvUEUQ==}
+
+  '@moefy-canvas/utils@0.6.0':
+    resolution: {integrity: sha512-QYW5FP8PhXTG0Y7fBkGDBNFLFNp70amwMqJiDvVYcDjSJVZYiZuvxrgvfKZYp+piL9oKBbfxgzYir9gbwZpZjA==}
 
   '@mrmlnc/readdir-enhanced@2.2.1':
     resolution: {integrity: sha512-bPHp6Ji8b41szTOcaP63VlnbbO5Ny6dwAATtY6JTjh5N2OLrb5Qk/Th5cRkRQhkWCt+EJsYrNB0MiL+Gpn6e3g==}
@@ -5191,6 +5207,9 @@ packages:
   tr46@1.0.1:
     resolution: {integrity: sha512-dTpowEjclQ7Kgx5SdBkqRzVhERQXov8/l9Ft9dVM9fmg0W0KQSVaXX9T4i6twCPNtYiZM53lpSSUAwJbFPOHxA==}
 
+  ts-debounce@4.0.0:
+    resolution: {integrity: sha512-+1iDGY6NmOGidq7i7xZGA4cm8DAa6fqdYcvO5Z6yBevH++Bdo9Qt/mN0TzHUgcCcKv1gmh9+W5dHqz8pMWbCbg==}
+
   tslib@1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}
 
@@ -5470,6 +5489,9 @@ packages:
 
   vuepress-plugin-one-click-copy@1.0.6:
     resolution: {integrity: sha512-apFCcsBwk9IEDm5HwD6dwor30rl8gr0VjPkmrQlFSR2KD7OjK3ZUwioeEvbrcAiZBi35V6YgndLAHksJXRfpnQ==}
+
+  vuepress-plugin-reading-progress@1.0.10:
+    resolution: {integrity: sha512-7OxcjNEDf9gqFTns0YnXrqPnTRlX6wvxWFr7D8tlfyMPpsZwJkh/MkJveRrEaKcU0gk8QGmPHnXLAZ3soTThVg==}
 
   vuepress-plugin-sitemap@2.3.1:
     resolution: {integrity: sha512-n+8lbukhrKrsI9H/EX0EBgkE1pn85LAQFvQ5dIvrZP4Kz6JxPOPPNTQmZMhahQV1tXbLZQCEN7A1WZH4x+arJQ==}
@@ -6477,6 +6499,18 @@ snapshots:
       '@leancloud/adapter-utils': 1.2.2
       event-target-shim: 5.0.1
       miniprogram-api-typings: 2.12.0
+
+  '@moefy-canvas/core@0.6.0': {}
+
+  '@moefy-canvas/theme-popper@0.6.0':
+    dependencies:
+      '@moefy-canvas/core': 0.6.0
+      '@moefy-canvas/utils': 0.6.0
+      ts-debounce: 4.0.0
+
+  '@moefy-canvas/utils@0.6.0':
+    dependencies:
+      '@moefy-canvas/core': 0.6.0
 
   '@mrmlnc/readdir-enhanced@2.2.1':
     dependencies:
@@ -11731,6 +11765,8 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
+  ts-debounce@4.0.0: {}
+
   tslib@1.14.1: {}
 
   tty-browserify@0.0.0: {}
@@ -12118,6 +12154,8 @@ snapshots:
       vuepress: 1.9.9(@vue/compiler-sfc@3.5.20)(hogan.js@3.0.2)(lodash@4.17.21)(underscore@1.13.7)
 
   vuepress-plugin-one-click-copy@1.0.6: {}
+
+  vuepress-plugin-reading-progress@1.0.10: {}
 
   vuepress-plugin-sitemap@2.3.1(chalk@4.1.2)(commander@2.20.3)(esm@3.2.25):
     dependencies:

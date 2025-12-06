@@ -1,7 +1,8 @@
 // Java导航栏
 module.exports =  [
   { text: '首页', link: '/' },
-  { text: '公司简介', link: '/pages/f93792/' },
+  { text: '马上有车登录后台', link: 'https://msyc.jhtd361.cn/?s=/login/index' },
+  { text: '金翌官网', link: 'https://www.jinyigroup.com.cn/#/' },
 
     /*
 {
@@ -29,17 +30,14 @@ module.exports =  [
 
  */
 
- { text: '新闻中心', 
+ { text: 'ECS服务器', 
   items:[
-    { text: '内部新闻', link: '/pages/9cc27d/' },
-    { text: '外部新闻', link: '/pages/9cc27d/' },
-   
-
-   
-  
-
+    { text: '圣传创智', link: '/pages/9cc27d/' },
+    { text: '京海通达', link: '/pages/9ct27d/' },
+    { text: 'Unicloud', link: '/pages/8ct27a/' },
   ]
   },
+  { text: '导航站', link: '/pages/8ct27c/' },
 
   /** 注释代码
   { text: '程序设计',

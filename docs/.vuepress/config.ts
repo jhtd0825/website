@@ -3,6 +3,7 @@
  */
 import { resolve } from 'path'
 import { defineConfig4CustomTheme, UserPlugins } from 'vuepress/config'
+import { Popper } from '@moefy-canvas/theme-popper' // 导入 popper 主题
 import { VdoingThemeConfig } from 'vuepress-theme-vdoing/types'
 import dayjs from 'dayjs'
 import baiduCode from './config/baiduCode' // 百度统计hm码
@@ -14,7 +15,7 @@ const WEB_SITE = `https://${DOMAIN_NAME}` // 网址
 export default defineConfig4CustomTheme<VdoingThemeConfig>({
   theme: 'vdoing', // 使用npm主题包
   // theme: resolve(__dirname, '../../vdoing'), // 使用本地主题包
-
+  // base: '/', // 默认'/'。如果你想将你的网站部署到如 https://foo.github.io/bar/，那么 base 应该被设置成 "/bar/",（否则页面将失去样式等文件）
   locales: {
     '/': {
       lang: 'zh-CN',
@@ -22,7 +23,7 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
       description: 'web前端技术博客,专注web前端学习与总结。JavaScript,js,ES6,TypeScript,vue,React,python,css3,html5,Node,git,github等技术文章。',
     }
   },
-  base: '/website/',       // 默认'/'。如果你想将你的网站部署到如 https://foo.github.io/bar/，那么 base 应该被设置成 "/bar/",（否则页面将失去样式等文件）
+        
 
   // 主题配置
   themeConfig: {
@@ -50,7 +51,7 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
      bodyBgImg: [
 
  
-       'https://www.msyc.com.cn/jinyi/2.png', 
+      // 'https://www.msyc.com.cn/jinyi/2.png', 
      ], // body背景大图，默认无。 单张图片 String | 多张图片 Array, 多张图片时隔bodyBgImgInterval切换一张。
      bodyBgImgOpacity: 0.8, // body背景图透明度，选值 0.1~1.0, 默认0.5
      bodyBgImgInterval: 30, // body多张背景图时的切换间隔, 默认15，单位s
@@ -117,23 +118,33 @@ export default defineConfig4CustomTheme<VdoingThemeConfig>({
         'Evan Xu | <a href="https://github.com/xugaoyi/vuepress-theme-vdoing/blob/master/LICENSE" target="_blank">MIT License</a> | <a href="http://beian.miit.gov.cn/" target="_blank">桂ICP备2024034950号</a> | <img src="/img/beian.png" style="width: 15px; margin-bottom: -3px;" /> <a href="https://beian.mps.gov.cn/#/query/webSearch?code=45142202000030" rel="noreferrer" target="_blank">桂公网安备45142202000030</a>', // 博客版权信息、备案信息等，支持a标签或换行标签</br>
     },
 
-  //首页大图模块
+// 首页大图片配置
   indexImg: {
-  navColor: 2,    // 导航栏左侧名字、中间搜索框、右侧字体的颜色，1 是黑色，2 是白色。默认是 1
-  switchNavColor: true,    // 页面移出大图片的位置后，navColor 是否变换，如由白色变黑色，黑色变白色。默认是 false
-  // 因为本主题的默认背景色偏向白色，如果 navColor 是 2，建议需要开启(true)，否则白背景 + 白字体 = 看不见
-  bgTimeColor: true,     // 是否开启图片的背景色随一天的不同时间而变化，并且开启时间窗口提示，默认是 false。时间分为四种：白天（原图）、黄昏（偏黄）、晚上（偏黑）、深夜（偏深黑）
-  bgTimeColorArray: ['transparent', 'transparent', 'transparent', 'transparent'],   // 第一个是白天的颜色（默认原图），第二个是黄昏的颜色，第三个是晚上的颜色，第四个是深夜的颜色。bgTimeColor 为 true 生效。提示：如果不想要这个效果，但是又想要时间窗口提示效果，则改为 ['transparent', 'transparent', 'transparent', 'transparent']
-  descFade: true,   // 是否开启图片中间描述的淡入效果，默认为 false
-  desc: ["Web前端技术博客，积跬步以至千里，致敬每个爱学习的你 —— 来自 Evan Xu", "故事由我书写，旅程由你见证，传奇由她聆听 —— 来自 Young Kbt", "这一生波澜壮阔或是不惊都没问题 —— 来自 Weibw"],  // 多个描述，如果填写则覆盖 config.js 的 description，不填写默认读取 config.js 的 description，descFade 为 true 生效
-  descFontSize: '1.4rem',   // desc 的字体大小，默认 1.4rem。提示：原主题是 1.1rem
-  descFadeInTime: 200,  // 描述的淡入效果持续时间，descFade 为 true 生效，默认 200 毫秒
-  descFadeOutTime: 100,  // 描述的淡出效果持续时间，descFade 为 true 生效，默认 100 毫秒
-  descNextTime: 800,  // 当存在多个 desc 时，一个 desc 展示完后或准备开始时，多少秒后出现下一个 desc，默认 800 毫秒
-  bubble: true,    // 是否开启图片的气泡效果，默认为 false
-  bubblePosition: 0,  // 气泡效果的位置，范围：0-100，不同数值代表不同的起始位置，0是整个图片，50是半张图（一半的下方）。bubble 为 true 生效。默认是 0
-  bubbleNum: 200,   // 气泡的个数，bubble 为 true 生效，默认 200 个
-},
+    navColor: 2, // 导航栏左侧名字、中间搜索框、右侧字体的颜色，1 是黑色，2 是白色。默认是 1
+    switchNavColor: true, // 页面移出大图片的位置后，navColor 是否变换，如由白色变黑色，黑色变白色。默认是 false
+    // 因为本主题的默认背景色偏向白色，如果 navColor 是 2，建议需要开启(true)，否则白背景 + 白字体 = 看不见
+    bgTimeColor: true, // 是否开启图片的背景色随一天的不同时间而变化，并且开启时间窗口提示，默认是 false。时间分为四种：白天（原图）、黄昏（偏黄）、晚上（偏黑）、深夜（偏深黑）
+    bgTimeColorArray: [
+      "transparent",
+      "transparent",
+      "transparent",
+      "transparent",
+    ], // 第一个是白天的颜色（默认原图），第二个是黄昏的颜色，第三个是晚上的颜色，第四个是深夜的颜色。bgTimeColor 为 true 生效
+    descFade: true, // 是否开启图片中间描述的淡入淡出效果，默认为 false
+    descFadeIn: true, // descFadeIn 为 true 时，是否开启淡入效果，默认为 true
+    desc: [
+      "故事由我书写，旅程由你见证，传奇由她聆听 —— 来自 Young Kbt",
+      "积跬步以至千里，致敬每个爱学习的你 —— 来自 Evan Xu",
+      "这一生波澜壮阔或是不惊都没问题 —— 来自 Weibw",
+    ], // 多条描述，如果填写则覆盖 index.md 的 tagline，不填写则默认读取 index.md 的 tagline，descFadeIn 为 true 生效
+    descFontSize: "1.4rem", // desc 的字体大小，默认 1.4rem。提示：原主题是 1.1rem
+    descFadeInTime: 200, // 描述的淡入效果持续时间，descFade 为 true 生效，默认 200 毫秒
+    descFadeOutTime: 100, // 描述的淡出效果持续时间，descFade 为 true 生效，默认 100 毫秒
+    descNextTime: 800, // 当有多个 desc 时，一个 desc 展示完后或准备开始时，多少时间后出现下一个 desc，默认 800 毫秒
+    bubble: false, // 是否开启图片的气泡效果，默认为 false
+    bubblePosition: 0, // 气泡效果的位置，范围：0-100，不同数值代表不同的起始位置，0是整个图片，50是半张图（一半的下方）。bubble 为 true 生效。默认是 0
+    bubbleNum: 200, // 气泡的个数，bubble 为 true 生效，默认 200 个
+  },
 
 
     // 私密文章配置
@@ -200,11 +211,46 @@ privatePage: {
 
   // 插件配置
   plugins: <UserPlugins>[
+    //鼠标点击气泡插件
+     [
+      '@moefy-canvas/vuepress',
+      {
+        enable: true,
+        theme: Popper, // 漂浮气泡主题
+        options: {
+          // 原有漂浮气泡配置（如 size、density 等，不变）
+          size: 1.2,
+          color: '#11a8cd',
+          opacity: 0.6,
+
+          // 新增：点击效果配置（启用点击生成气泡）
+          click: {
+            enable: true, // 开启点击效果
+            number: 3, // 点击一次生成 3 个气泡
+            delay: 1000, // 气泡存在 1 秒后消失（单位 ms）
+            // 点击生成的气泡样式（继承上方 color、size，可单独覆盖）
+            color: 'random', // 点击气泡随机颜色（覆盖全局 color）
+            size: 0.8, // 点击气泡比漂浮气泡小
+          },
+        },
+      },
+    ],
+    //首页大图插件
      [
     	{
         	name: 'custom-plugins',
         	globalUIComponents: ["Fantasy"]
     	}
+    ],
+    [
+      'reading-progress', // 阅读进度条
+      {
+      color: '#11a8cd', // 进度条颜色（和你的主题色一致）
+      height: 3, // 进度条高度（3px，默认 2px）
+      position: 'top', // 位置在顶部（可选 bottom）
+      showInHome: false, // 首页不显示（避免无意义进度条）
+      throttle: 50 // 进度更新更灵敏（默认 100ms）
+    }
     ],
     [
       "sitemap", // 网站地图

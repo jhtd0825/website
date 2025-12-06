@@ -1,239 +1,432 @@
 <template>
-  <div class="login-form">
-    <div class="form-header">用户名</div>
-    <div>
-      <input
-        type="text"
-        class="form-control"
-        placeholder="请输入用户名 ..."
-        v-model="username"
-      />
-    </div>
-    <div class="form-header">密码</div>
-    <div>
-      <input
-        type="password"
-        class="form-control"
-        placeholder="请输入密码 ..."
-        v-model="password"
-      />
-    </div>
-
-    <div class="btn-row">
-      <button class="btn" @click="login">登录</button>
-    </div>
-  </div>
+  <div class="index-bigimg" style="display: none"></div>
 </template>
-
 <script>
+// 两个变量分别是背景元素的 class、生成的箭头 class
+const banner = "banner";
+const banner_arrow = "banner-arrow";
 export default {
   data() {
     return {
-      username: "",
-      password: "",
-      privateInfo: {
-        username: "",
-        password: "",
-        loginKey: "",
-        expire: "",
-        loginInfo: "",
-        allLoginKey: "kbt",
-      },
+      // 下面都是配置的默认值，建议在 themeConfig 进行配置，它们将覆盖这些属性值
+      navColor: 1,
+      switchNavColor: false,
+      bgTimeColor: false,
+      bgTimeColorArray: [
+        "transparent", // 透明
+        "rgba(255, 148, 48, .2)",
+        "rgba(0, 0, 0, .3)",
+        "rgba(0, 0, 0, .5)",
+      ],
+      descFade: false,
+      desc: [],
+      descFadeInTime: 200,
+      descFadeOutTime: 100,
+      descNextTime: 800,
+      descFontSize: "1.4rem",
+      bubble: false,
+      bubblePosition: 0,
+      bubbleNum: 200,
+      fadeInInterval: "", // 淡入定时器
+      fadeOutInterval: "", // 淡出定时器
     };
   },
   mounted() {
-    // Enter 键也能触发登录按钮
-    document.onkeyup = (e) => {
-      let key = window.event.keyCode;
-      if (key == 13) {
-        this.login();
+    const arrow = document.getElementById(banner_arrow);
+    arrow && arrow.parentNode.removeChild(arrow);
+    let a = document.createElement("a");
+    a.id = banner_arrow;
+    a.className = banner_arrow;
+    document.getElementsByClassName(banner)[0].append(a);
+    let targetA = document.getElementById(banner_arrow);
+    targetA.addEventListener("click", (e) => {
+      // 添加点击事件
+      this.scrollFn();
+    });
+
+    // 初始化配置
+    this.initConfig();
+
+    // 初始化组件功能
+    if (this.bgTimeColor) {
+      this.bgTimeColorAndTip();
+    }
+    setTimeout(() => {
+      this.noBgBlur();
+    }, 100);
+
+    this.blurText();
+    this.watchScroll();
+
+    if (this.descFade) {
+      this.textFadeInAndOut();
+    }
+    if (this.bubble) {
+      let canvas = document.createElement("canvas");
+      canvas.id = "canvas";
+      canvas.style.top = this.bubblePosition + "%";
+      document.getElementsByClassName(banner)[0].append(canvas);
+      this.canvasBubble();
+    }
+  },
+  watch: {
+    $route(to, from) {
+      // 点击下一页后，往下滑动，移出大图
+      if (to.path == "/" && Object.keys(this.$route.query).length > 0) {
+        setTimeout(() => {
+          this.clickArrow();
+        }, 200);
       }
-    };
+    },
   },
   methods: {
-    /**
-     * 登录验证
-     */
-    login() {
-      let { privateInfo } = this;
-      // 获取全局配置
-      let { username, password, loginKey, expire, firstLoginKey, loginInfo } =
-        this.$themeConfig.privatePage;
-      !loginKey && (loginKey = "vdoing_manager"); // 默认为 vdoing_manager
-      // 计算正确的过期时间
-      expire = this.getExpire(expire);
-      !expire && (expire = 86400000);
-      if (this.username && this.password) {
-        // 进入网站前进行验证
-        if (this.$route.query.verifyMode == "first") {
-          privateInfo.expire = expire;
-          !firstLoginKey && (firstLoginKey = "vdoing_first_login"); // 默认为 vdoing_first_login
-          // 检查 loginInfo 是否验证成功
-          let check = false;
-          if (loginInfo && loginInfo.hasOwnProperty(firstLoginKey)) {
-            check = this.checkLoginInfoAndJump(
-              loginInfo[firstLoginKey],
-              firstLoginKey
-            );
-          }
-          // 如果第一次进入网站以管理员登录，则网站的所有私密文章不再需要验证
-          if (
-            !check &&
-            this.username == username &&
-            this.password == password
-          ) {
-            // 如果管理员登录，直接 key = vdoing_manager，不需要再次 key = vdoing_first_login
-            // this.storageLocalAndJump(firstLoginKey, false);
-            this.storageLocalAndJump(loginKey, true);
-          } else if (!check) {
-            this.password = ""; // 清空密码
-            addTip(
-              "用户名或者密码错误！请联系博主获取用户名和密码！",
-              "danger"
-            );
-          }
-        } else {
-          // 如果是单个文章验证
-          if (this.$route.query.verifyMode == "single") {
-            try {
-              this.$filterPosts.forEach((item) => {
-                if (item.path == this.$route.query.toPath) {
-                  privateInfo.username = item.frontmatter.username;
-                  privateInfo.password = item.frontmatter.password;
-                  privateInfo.loginKey = item.frontmatter.permalink;
-                  privateInfo.expire =
-                    this.getExpire(item.frontmatter.expire) || expire;
-                  privateInfo.loginInfo = item.frontmatter.loginInfo;
-                  // 利用异常机制跳出 forEach 循环，break、return、continue 不会起作用
-                  throw new Error();
-                }
-              });
-            } catch (e) {}
-          }
-          // checkLoginInfo：判断是否进行了 loginInfo 验证
-          let checkLoginInfo = false;
-          // 如果没有配置单私密文章用户信息，则使用全局配置
-          if (
-            !privateInfo.username &&
-            !privateInfo.password &&
-            !privateInfo.loginInfo
-          ) {
-            privateInfo.loginKey = this.$route.query.toPath;
-            privateInfo.loginInfo = loginInfo;
-            privateInfo.expire ? "" : (privateInfo.expire = expire);
-          }
-          // 先进行 loginInfo 验证
-          if (privateInfo.loginInfo) {
-            // 如果是数组：即单个文章设置的 loginInfo
-            if (Array.isArray(privateInfo.loginInfo)) {
-              checkLoginInfo = this.checkLoginInfoAndJump(
-                privateInfo.loginInfo
-              );
-            } else if (
-              privateInfo.loginInfo.hasOwnProperty(this.$route.query.toPath)
-            ) {
-              // 如果是对象，即全局设置的 loginInfo
-              checkLoginInfo = this.checkLoginInfoAndJump(
-                privateInfo.loginInfo[this.$route.query.toPath]
-              );
-            }
-          }
-          // 如果没有触发 loginInfo 验证或者 loginInfo 验证失败，则进行单个用户名密码验证
-          if (!checkLoginInfo) {
-            // 如果使用文章配置的用户名密码
-            if (
-              this.username == privateInfo.username &&
-              this.password == privateInfo.password
-            ) {
-              this.storageLocalAndJump(this.privateInfo.loginKey, true);
-            } else if (
-              // 如果使用全局配置的用户名密码
-              this.username == username &&
-              this.password == password
-            ) {
-              this.storageLocalAndJump(loginKey, true);
-            } else {
-              this.password = ""; // 清空密码
-              addTip(
-                "用户名或者密码错误！请联系博主获取用户名和密码！",
-                "danger"
-              );
-            }
-          }
-        }
-      } else if (this.username == "" && this.password != "") {
-        addTip("用户名不能为空！", "warning");
-      } else if (this.username != "" && this.password == "") {
-        addTip("密码不能为空！", "warning");
-      } else {
-        addTip("您访问的文章是私密文章，请先输入用户名和密码！", "info");
+    // 初始化配置
+    initConfig() {
+      if (
+        this.$themeConfig.indexImg &&
+        Object.keys(this.$themeConfig.indexImg).length > 0
+      ) {
+        this.navColor =
+          this.$themeConfig.indexImg.navColor == undefined
+            ? this.navColor
+            : this.$themeConfig.indexImg.navColor;
+        this.switchNavColor =
+          this.$themeConfig.indexImg.switchNavColor == undefined
+            ? this.switchNavColor
+            : this.$themeConfig.indexImg.switchNavColor;
+        this.bgTimeColor =
+          this.$themeConfig.indexImg.bgTimeColor == undefined
+            ? this.bgTimeColor
+            : this.$themeConfig.indexImg.bgTimeColor;
+        this.bgTimeColorArray =
+          this.$themeConfig.indexImg.bgTimeColorArray == undefined
+            ? this.bgTimeColorArray
+            : this.$themeConfig.indexImg.bgTimeColorArray;
+        this.descFade =
+          this.$themeConfig.indexImg.descFade == undefined
+            ? this.descFade
+            : this.$themeConfig.indexImg.descFade;
+        this.desc =
+          this.$themeConfig.indexImg.desc == undefined
+            ? this.desc
+            : this.$themeConfig.indexImg.desc;
+        this.descFontSize =
+          this.$themeConfig.indexImg.descFontSize == undefined
+            ? this.descFontSize
+            : this.$themeConfig.indexImg.descFontSize;
+        this.descFadeInTime =
+          this.$themeConfig.indexImg.descFadeInTime == undefined
+            ? this.descFadeInTime
+            : this.$themeConfig.indexImg.descFadeInTime;
+        this.descNextTime =
+          this.$themeConfig.indexImg.descNextTime == undefined
+            ? this.descNextTime
+            : this.$themeConfig.indexImg.descNextTime;
+        this.bubble =
+          this.$themeConfig.indexImg.bubble == undefined
+            ? this.bubble
+            : this.$themeConfig.indexImg.bubble;
+        this.bubblePosition =
+          this.$themeConfig.indexImg.bubblePosition == undefined
+            ? this.bubblePosition
+            : this.$themeConfig.indexImg.bubblePosition;
+        this.bubbleNum =
+          this.$themeConfig.indexImg.bubbleNum == undefined
+            ? this.bubbleNum
+            : this.$themeConfig.indexImg.bubbleNum;
       }
     },
-    /**
-     * 检查 loginInfo 里的用户名和密码
-     * 匹配成功返回 true，失败返回 false
-     */
-    checkLoginInfoAndJump(
-      loginInfo = this.privateInfo.loginInfo,
-      loginKey = this.privateInfo.loginKey
-    ) {
-      try {
-        loginInfo.forEach((item) => {
-          if (
-            this.username == item.username &&
-            this.password == item.password
-          ) {
-            this.storageLocalAndJump(loginKey, true);
-            // 利用异常机制跳出 forEach 循环，break、return、continue 不会起作用
-            throw new Error();
-          }
-        });
-      } catch (error) {
-        return true;
-      }
-      return false;
-    },
-    /**
-     * 添加登录信息到本地存储区，并跳转到私密文章
-     * loginKey：存储到本地的 key，方便自动验证
-     * jump：是否跳转到私密文章，默认存储到本地后跳转
-     */
-    storageLocalAndJump(loginKey = this.privateInfo.loginKey, jump = true) {
-      const data = JSON.stringify({
-        username: this.username,
-        password: this.password,
-        time: new Date().getTime(),
-        expire: this.privateInfo.expire,
+    // 点击箭头向下滑动
+    scrollFn() {
+      const windowH = document.getElementsByClassName(banner)[0].clientHeight; // 获取窗口高度
+      window.scrollTo({
+        top: windowH,
+        behavior: "smooth", // 平滑滚动
       });
-      window.localStorage.setItem(loginKey, data);
-      if (jump) {
-        addTip("登录成功，正在跳转 ...", "success");
-        if (this.$route.query.toPath) {
-          this.$router.push({
-            path: this.$route.query.toPath,
-          });
+    },
+    // 触发下拉按钮
+    clickArrow() {
+      const arrow = document.getElementById("banner-arrow");
+      arrow.click();
+    },
+    // 监听页面滚动的回调
+    watchScroll() {
+      const windowH = document.getElementsByClassName(banner)[0].clientHeight; // 获取窗口高度
+      window.onscroll = () => {
+        if (document.documentElement.scrollTop < windowH) {
+          this.blurText(this.navColor);
+          this.noBgBlur();
         } else {
-          this.$router.push({
-            path: "/",
-          });
+          if (this.switchNavColor && this.navColor == 1) {
+            this.blurText(2);
+          } else if (this.switchNavColor && this.navColor == 2) {
+            this.blurText(1);
+          }
+          this.bgBlur();
         }
+      };
+    },
+    // 导航栏恢复原主题样式
+    bgBlur() {
+      let navbar = document.getElementsByClassName("navbar")[0];
+      navbar.className = "navbar blur";
+    },
+    // 导航栏透明
+    noBgBlur() {
+      let navbar = document.getElementsByClassName("navbar")[0];
+      navbar.className = "navbar navbar1 blur";
+    },
+    // 导航栏的字体颜色
+    blurText(navColor = this.navColor) {
+      let title = document.getElementsByClassName("site-name")[0];
+      let search = document.getElementsByClassName("search-box")[0];
+      let nav = document.getElementsByClassName("nav-links")[0];
+      if (navColor == 1) {
+        title.className = "site-name can-hide";
+        nav.className = "nav-links can-hide";
+        search.className = "search-box";
+      } else if (navColor == 2) {
+        title.className = "site-name site-name1 can-hide";
+        nav.className = "nav-links nav-links1 can-hide";
+        search.className = "search-box search-box1";
       }
     },
-    /**
-     * 计算过期时间
-     */
-    getExpire(expire) {
-      if (expire) {
-        if (expire.indexOf("d") !== -1) {
-          expire = parseInt(expire.replace("d", "")) * 24 * 60 * 60 * 1000; // 天
-        } else if (expire.indexOf("h") !== -1) {
-          expire = parseInt(expire.replace("h", "")) * 60 * 60 * 1000; // 小时
-        } else {
-          expire = parseInt(expire) * 1000; // 不加单位为秒
-        }
+    // 背景色随时间变化，时间提示框内容随时间变化
+    bgTimeColorAndTip() {
+      let hours = new Date().getHours();
+      let minutes = new Date().getMinutes();
+      let seconds = new Date().getSeconds();
+      hours = hours < 10 ? "0" + hours : hours;
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+      let div = document.createElement("div");
+      div.className = "banner-color";
+      if (hours >= 6 && hours < 11) {
+        div.style.backgroundColor = this.bgTimeColorArray[0];
+        addTip(
+          `早上好呀~~，现在是 ${hours}:${minutes}:${seconds}，吃早餐了吗？😊🤭`,
+          "info",
+          50,
+          4000
+        );
+      } else if (hours >= 12 && hours <= 16) {
+        div.style.backgroundColor = this.bgTimeColorArray[0];
+        addTip(
+          `下午好呀~~，现在是 ${hours}:${minutes}:${seconds}，繁忙的下午也要适当休息哦🥤🏀~~`,
+          "info",
+          50,
+          4000
+        );
+      } else if (hours >= 16 && hours <= 19) {
+        div.style.backgroundColor = this.bgTimeColorArray[1];
+        addTip(
+          `到黄昏了~~，现在是 ${hours}:${minutes}:${seconds}，该准备吃饭啦🥗🍖~~`,
+          "info",
+          50,
+          4000
+        );
+      } else if (hours >= 19 && hours < 24) {
+        div.style.backgroundColor = this.bgTimeColorArray[2];
+        addTip(
+          `晚上好呀~~，现在是 ${hours}:${minutes}:${seconds}，该准备洗漱睡觉啦🥱😪~~`,
+          "info",
+          50,
+          4000
+        );
+      } else if (hours >= 0 && hours < 6) {
+        div.style.backgroundColor = this.bgTimeColorArray[3];
+        addTip(
+          `别再熬夜了~~，现在是 ${hours}:${minutes}:${seconds}，早点睡吧，让我们一起欣赏早上的太阳~~😇🛏`,
+          "info",
+          50,
+          4000
+        );
       }
-      return expire;
+      document.getElementsByClassName(banner)[0].parentNode.append(div);
     },
+    // 字体淡入淡出
+    textFadeInAndOut(
+      desc = this.desc, // 文字描述
+      descFontSize = this.descFontSize, // 字体大小
+      descFadeInTime = this.descFadeInTime, // 淡入时间
+      descFadeOutTime = this.descFadeOutTime, // 淡出时间
+      descNextTime = this.descNextTime // 下一个描述出现时间
+    ) {
+      let descElement = document.getElementsByClassName("description")[0];
+
+      if (descElement) {
+        // 非首页不触发
+        descElement.style.fontSize = descFontSize;
+        var span = document.createElement("span"); // 创建 | 的元素
+        span.className = "typed";
+        span.innerHTML = "|";
+        var index = 0; // 为 desc 的长度服务
+        var length = 0; // 为数组服务
+        var description = descElement.innerText; // 先取默认值
+        descElement.innerText = ""; // 清空 desc
+        descElement.appendChild(document.createElement("span")); // 创建 desc 所在的新元素
+        span && descElement.appendChild(span); // 添加 | 的元素
+        // 初始化迭代
+        this.fadeInInterval = setInterval(() => {
+          fadeIn();
+        }, descFadeInTime);
+      } else {
+        let hero = document.getElementsByClassName("hero")[0];
+        descElement = document.createElement("p");
+        descElement && (descElement.className = "description");
+        descElement && hero.appendChild(descElement);
+      }
+      // 淡入回调
+      let fadeIn = () => {
+        if (descElement) {
+          span.style.animation = "none"; // 淡入时，| 光标不允许闪烁
+          if (desc instanceof Array && desc.length > 0) {
+            // 如果是 themeConfig 传来的数组
+            description = desc[length];
+          }
+          descElement.firstChild.innerText = description.substring(0, index++);
+          if (index > description.length) {
+            clearInterval(this.fadeInInterval);
+            span.style.animation = "typedBlink 1s infinite"; // 淡入结束，| 光标允许闪烁
+            setTimeout(() => {
+              this.fadeOutInterval = setInterval(() => {
+                fadeOut();
+              }, descFadeOutTime);
+            }, descNextTime);
+          }
+        }
+      };
+      // 淡出回调
+      let fadeOut = () => {
+        if (index >= 0) {
+          span.style.animation = "none"; // 淡出时，| 光标不允许闪烁
+          descElement.firstChild.innerText = description.substring(0, index--);
+        } else {
+          clearInterval(this.fadeOutInterval);
+          span.style.animation = "typedBlink 1s infinite"; // 淡出结束，| 光标允许闪烁
+          setTimeout(() => {
+            length++;
+            if (length >= desc.length) {
+              length = 0; // desc 展示完，重新开始计数
+            }
+            this.fadeInInterval = setInterval(() => {
+              fadeIn();
+            }, descFadeInTime);
+          }, descNextTime);
+        }
+      };
+    },
+    // 气泡效果
+    canvasBubble(bubbleNum = this.bubbleNum) {
+      var canvas = document.getElementById("canvas");
+      var cxt = canvas.getContext("2d");
+      function Dot() {
+        this.alive = true;
+        this.x = Math.round(Math.random() * canvas.width);
+        this.y = Math.round(Math.random() * canvas.height);
+        this.diameter = Math.random() * 10.8;
+        this.ColorData = {
+          Red: Math.round(Math.random() * 255),
+          Green: Math.round(Math.random() * 255),
+          Blue: Math.round(Math.random() * 255),
+        };
+        this.alpha = 0.5;
+        this.color =
+          "rgba(" +
+          this.ColorData.Red +
+          ", " +
+          this.ColorData.Green +
+          "," +
+          this.ColorData.Blue +
+          "," +
+          this.alpha +
+          ")";
+        this.velocity = {
+          x: Math.round(Math.random() < 0.5 ? -1 : 1) * Math.random() * 0.7,
+          y: Math.round(Math.random() < 0.5 ? -1 : 1) * Math.random() * 0.7,
+        };
+      }
+      Dot.prototype = {
+        Draw: function () {
+          cxt.fillStyle = this.color;
+          cxt.beginPath();
+          cxt.arc(this.x, this.y, this.diameter, 0, Math.PI * 2, false);
+          cxt.fill();
+        },
+        Update: function () {
+          if (this.alpha < 0.8) {
+            this.alpha += 0.01;
+            this.color =
+              "rgba(" +
+              this.ColorData.Red +
+              ", " +
+              this.ColorData.Green +
+              "," +
+              this.ColorData.Blue +
+              "," +
+              this.alpha +
+              ")";
+          }
+          this.x += this.velocity.x;
+          this.y += this.velocity.y;
+          if (
+            this.x > canvas.width + 5 ||
+            this.x < 0 - 5 ||
+            this.y > canvas.height + 5 ||
+            this.y < 0 - 5
+          ) {
+            this.alive = false;
+          }
+        },
+      };
+      var Event = {
+        rArray: [],
+        Init: function () {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+          for (var x = 0; x < bubbleNum; x++) {
+            this.rArray.push(new Dot());
+          }
+          this.Update();
+        },
+        Draw: function () {
+          cxt.clearRect(0, 0, canvas.width, canvas.height);
+          this.rArray.forEach(function (dot) {
+            dot.Draw();
+          });
+        },
+        Update: function () {
+          if (Event.rArray.length < bubbleNum) {
+            for (var x = Event.rArray.length; x < bubbleNum; x++) {
+              Event.rArray.push(new Dot());
+            }
+          }
+          Event.rArray.forEach(function (dot) {
+            dot.Update();
+          });
+          Event.rArray = Event.rArray.filter(function (dot) {
+            return dot.alive;
+          });
+          Event.Draw();
+          requestAnimationFrame(Event.Update);
+        },
+      };
+      window.onresize = function () {
+        Event.rArray = [];
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      };
+      Event.Init();
+    },
+  },
+  // 防止重写编译时，导致定时器叠加问题
+  beforeMount() {
+    clearInterval(this.fadeInInterval);
+    clearInterval(this.fadeOutInterval);
+  },
+  beforeDestroy() {
+    clearInterval(this.fadeInInterval);
+    clearInterval(this.fadeOutInterval);
   },
 };
 /**
@@ -242,6 +435,8 @@ export default {
  * type：弹窗类型（tip、success、warning、danger）
  * startHeight：第一个弹窗的高度，默认 50
  * dieTime：弹窗消失时间（毫秒），默认 3000 毫秒
+ *
+ * 在 head 里添加图标 link 地址：https://at.alicdn.com/t/font_3114978_qe0b39no76.css
  */
 function addTip(content, type, startHeight = 50, dieTime = 3000) {
   var tip = document.querySelectorAll(".global-tip");
@@ -308,49 +503,146 @@ function nextAllTipElement(elem) {
 }
 </script>
 
-<style lang="stylus">
-.login-form {
-  padding: 1rem;
-  box-sizing: border-box;
+<style>
+/* 图片大小 */
+.vdoing-index-class .home-wrapper .banner {
+  margin-top: 0 !important;
+  height: 100vh;
+  background-attachment: fixed !important;
+}
 
-  .btn-row {
-    margin-top: 1rem;
-    text-align: center;
+/* 图片中间的签名和标题位置 */
+.banner-conent {
+  margin-top: 23vh !important;
+}
+
+/* 下面是配合 js 用的 class 样式 */
+.vdoing-index-class .navbar1 {
+  background-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.vdoing-index-class .nav-links1>.nav-item>a,
+/* 没有二级导航的一级导航 */
+.vdoing-index-class .nav-links1>a,
+/* GitHub */
+.vdoing-index-class .nav-links1 .dropdown-title a:hover,
+/* 鼠标悬停 */
+.vdoing-index-class .nav-links1 .title,
+/* 不能跳转的一级导航 */
+.vdoing-index-class .nav-links1 .dropdown-title>.link-title,
+/* 能跳转的一级导航 */
+.vdoing-index-class .site-name1
+
+/* 左侧的名字 */ {
+  color: #fff !important;
+}
+
+/* 页脚的颜色 */
+.vdoing-index-class .footer {
+  color: #fff;
+}
+
+.vdoing-index-class .search-box1 input {
+  border-color: #fff;
+  color: #fff;
+}
+
+/* 下面是箭头相关的样式 */
+.banner-arrow {
+  display: block;
+  margin: 12rem auto 0;
+  bottom: 45px;
+  width: 20px;
+  height: 20px;
+  font-size: 34px;
+  text-align: center;
+  animation: bounce-in 5s 3s infinite;
+  position: absolute;
+  left: 50%;
+  bottom: 15%;
+  margin-left: -10px;
+  cursor: pointer;
+  z-index: 999;
+}
+
+@-webkit-keyframes bounce-in {
+  0% {
+    transform: translateY(0);
   }
 
-  .btn {
-    padding: 0.6rem 2rem;
-    outline: none;
-    background-color: #60C084;
-    color: white;
-    border: 0;
-    cursor: pointer;
+  20% {
+    transform: translateY(0);
   }
 
-  .form-header {
-    color: #13b9e2;
-    margin-bottom: 0.5rem;
+  50% {
+    transform: translateY(-20px);
   }
 
-  .form-control {
-    padding: 0.6rem;
-    border: 2px solid #ddd;
-    width: 100%;
-    margin-bottom: 0.5rem;
-    box-sizing: border-box;
-    outline: none;
-    transition: border 0.2s ease;
+  80% {
+    transform: translateY(0);
+  }
 
-    &:focus {
-      border: 2px solid #aaa;
-    }
+  to {
+    transform: translateY(0);
   }
 }
 
-div.v-dialog-overlay {
-  opacity: 1 !important;
+.banner-arrow::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  display: block;
+  border-right: 3px solid #fff;
+  border-top: 3px solid #fff;
+  transform: rotate(135deg);
+  position: absolute;
+  bottom: 10px;
 }
 
+.banner-arrow::after {
+  content: "";
+  width: 20px;
+  height: 20px;
+  display: block;
+  border-right: 3px solid #fff;
+  border-top: 3px solid #fff;
+  transform: rotate(135deg);
+}
+
+/* 描述淡入淡出元素 */
+.description {
+  display: inline-block;
+}
+
+.typed {
+  opacity: 1;
+}
+
+/* 随时间变化的背景色元素 */
+.vdoing-index-class .banner-color {
+  width: 100%;
+  min-height: 450px;
+  overflow: hidden;
+  margin-top: 0;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+}
+
+/* 气泡效果的画布元素 */
+#canvas {
+  position: absolute;
+  top: 0;
+}
+
+/* 切换第二页，继续打开 banner */
+.hide-banner {
+  display: block !important;
+}
+
+/* 提示框元素 */
 .global-tip {
   position: fixed;
   display: flex;
@@ -419,5 +711,15 @@ div.v-dialog-overlay {
   color: #e6a23c;
   line-height: 21px;
   font-size: 14px;
+}
+
+@keyframes typedBlink {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 </style>

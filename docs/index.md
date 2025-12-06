@@ -1,7 +1,7 @@
 ---
 home: true
 # heroImage: /img/web.png
-heroText: 金翌车业官网导航介绍
+heroText: 金翌车业文档导航
 tagline: 永远别说不可能，事在人为敢攀登
 # actionText: 立刻进入 →
 # actionLink: /web/
@@ -31,8 +31,7 @@ background: 自定义背景样式       提示：如发现文本颜色不适应�
 
 <ClientOnly>
   <IndexBigImg />
-
-<!--  <Fantasy index="true" /> -->
+  <Fantasy index="true" /> 
 </ClientOnly>
 
 
